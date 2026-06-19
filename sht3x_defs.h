@@ -4,9 +4,7 @@
  * @details Sourced from Sensirion SHT3x-DIS Datasheet, August 2016 - Version 3.
  * @version 1.0
  */
-
-#ifndef SHT3X_DEFS_H
-#define SHT3X_DEFS_H
+#pragma once
 
 /* =========================================================================
  * @defgroup SHT3X_ADDR I2C Addresses
@@ -147,5 +145,3 @@
 #define SHT3X_CRC_INIT                  0xFFu /**< CRC-8 initial value                     */
 
 /** @} */ /* end group SHT3X_CRC */
-
-#endif /* SHT3X_DEFS_H */

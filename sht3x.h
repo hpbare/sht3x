@@ -20,9 +20,7 @@
  * the driver retries up to `SHT3X_POLL_RETRIES` times.
  * Works on any I2C master (hardware or bit-bang).
  */
-
-#ifndef SHT3X_H
-#define SHT3X_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -240,5 +238,3 @@ SHT3x_Status SHT3x_ClearStatus(SHT3x_Dev *dev);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* SHT3X_H */
