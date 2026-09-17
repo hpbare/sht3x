@@ -1,14 +1,14 @@
 /**
  * @file    sht3x_defs.h
  * @brief   SHT3x-DIS register map, command codes, bitmasks and timing constants.
- * @details Sourced from Sensirion SHT3x-DIS Datasheet, August 2016 - Version 3.
- * @version 1.0
+ * @details Sourced from Sensirion SHT3x-DIS Datasheet, December 2022 - Version 7.
+ * @version 2.0.0
  */
 #pragma once
 
 /* =========================================================================
  * @defgroup SHT3X_ADDR I2C Addresses
- * @brief    7-bit I2C device addresses (Table 7).
+ * @brief    7-bit I2C device addresses (Table 8).
  * @{
  * ========================================================================= */
 
@@ -43,7 +43,7 @@
 
 /* =========================================================================
  * @defgroup SHT3X_CMD_SINGLESHOT Single-Shot Commands
- * @brief    Trigger a single measurement (Table 8).
+ * @brief    Trigger a single measurement (Table 9).
  *           CS = Clock Stretching; HIGH/MED/LOW = repeatability.
  * @{
  * ========================================================================= */
@@ -59,7 +59,7 @@
 
 /* =========================================================================
  * @defgroup SHT3X_CMD_PERIODIC Periodic Mode Commands
- * @brief    Start continuous measurement at fixed rate (Table 9).
+ * @brief    Start continuous measurement at fixed rate (Table 10).
  *           Naming: SHT3X_CMD_PERIODIC_{mps}_{repeatability}
  *           mps: 05 = 0.5, 1, 2, 4, 10 measurements per second.
  * @{
@@ -80,33 +80,32 @@
 #define SHT3X_CMD_PERIODIC_10_HIGH      0x2737u /**< 10 mps, high repeatability    */
 #define SHT3X_CMD_PERIODIC_10_MED       0x2721u /**< 10 mps, medium repeatability  */
 #define SHT3X_CMD_PERIODIC_10_LOW       0x272Au /**< 10 mps, low repeatability     */
-#define SHT3X_CMD_PERIODIC_ART          0x2B32u /**< Periodic 4 Hz, high repeatability (ART) */
 
 /** @} */ /* end group SHT3X_CMD_PERIOD */
 
 /* =========================================================================
  * @defgroup SHT3X_CMD_MISC Miscellaneous Commands
- * @brief    Control, reset, heater, and status register commands.
+ * @brief    Control, reset, heater, ART, and status register commands.
  * @{
  * ========================================================================= */
 
-#define SHT3X_CMD_FETCH_DATA            0xE000u /**< Read measurement result from buffer         */
-#define SHT3X_CMD_ART                   0x2B32u /**< Activate Accelerated Response Time mode     */
-#define SHT3X_CMD_BREAK                 0x3093u /**< Stop periodic measurement, return to idle   */
-#define SHT3X_CMD_SOFT_RESET            0x30A2u /**< Soft reset via I2C interface                */
-#define SHT3X_CMD_HEATER_ON             0x306Du /**< Enable on-chip heater                       */
-#define SHT3X_CMD_HEATER_OFF            0x3066u /**< Disable on-chip heater                      */
-#define SHT3X_CMD_READ_STATUS           0xF32Du /**< Read 16-bit status register                 */
-#define SHT3X_CMD_CLEAR_STATUS          0x3041u /**< Clear all flags in status register          */
+#define SHT3X_CMD_FETCH_DATA            0xE000u /**< Read measurement result from buffer (Table 11)     */
+#define SHT3X_CMD_PERIODIC_ART          0x2B32u /**< Periodic measurement w/ ART, 4 Hz, high repeatability (Table 12) */
+#define SHT3X_CMD_BREAK                 0x3093u /**< Stop periodic measurement, return to idle (Table 13) */
+#define SHT3X_CMD_SOFT_RESET            0x30A2u /**< Soft reset via I2C interface (Table 14)             */
+#define SHT3X_CMD_HEATER_ON             0x306Du /**< Enable on-chip heater (Table 16)                    */
+#define SHT3X_CMD_HEATER_OFF            0x3066u /**< Disable on-chip heater (Table 16)                   */
+#define SHT3X_CMD_READ_STATUS           0xF32Du /**< Read 16-bit status register (Table 17)              */
+#define SHT3X_CMD_CLEAR_STATUS          0x3041u /**< Clear all flags in status register (Table 19)       */
 
-#define SHT3X_GENERAL_CALL_ADDR         0x00u   /**< I2C general call address (Table 14) */
+#define SHT3X_GENERAL_CALL_ADDR         0x00u   /**< I2C general call address (Table 15) */
 #define SHT3X_GENERAL_CALL_RESET        0x06u   /**< Second byte to trigger general call reset */
 
 /** @} */ /* end group SHT3X_CMD_MISC */
 
 /* =========================================================================
  * @defgroup SHT3X_SREG Status Register Bitmasks
- * @brief    Bitmasks for decoding the 16-bit status register (Table 17).
+ * @brief    Bitmasks for decoding the 16-bit status register (Table 18).
  * @{
  * ========================================================================= */
 
@@ -122,17 +121,33 @@
 
 /* =========================================================================
  * @defgroup SHT3X_EXEC   Execution Timing Constants
- * @brief    Safe maximum execution timing values in milliseconds (Table 4).
+ * @brief    Safe maximum execution timing values in milliseconds.
+ *           Values below use Table 5 (VDD 2.15V .. <2.4V), which is the
+ *           worst case across the sensor's full supported supply range
+ *           (VDDmin = 2.15V, Table 3). If your design guarantees VDD is
+ *           always >= 2.4V, the tighter Table 4 values may be used instead.
  * @{
  * ========================================================================= */
 
-#define SHT3X_EXEC_POWERUP_MS           2u  /**< Power-up time before first command (ms)          */
-#define SHT3X_EXEC_SOFT_RESET_MS        1.5  /**< Soft reset execution time (ms)                   */
-#define SHT3X_EXEC_MEAS_LOW_MS          4u  /**< Max measurement duration, low repeatability (ms) */
-#define SHT3X_EXEC_MEAS_MED_MS          6u  /**< Max measurement duration, med repeatability (ms) */
-#define SHT3X_EXEC_MEAS_HIGH_MS         15u /**< Max measurement duration, high repeatability (ms)*/
-#define SHT3X_EXEC_BREAK_MS             1u  /**< Time required after BREAK command (ms)           */
+/** Rule from section 4: minimum wait time after ANY command before the
+ *  sensor can accept the next one. Applies to every command in this file. */
+#define SHT3X_MIN_CMD_INTERVAL_MS       1u
 
-/** @} */ /* end group SHT3X_TIMING */
+/** Power-up time (tPU) before the sensor enters idle state and can accept
+ *  its first command after VDD reaches VPOR. Max value, Table 5. */
+#define SHT3X_EXEC_POWERUP_MS           2u   /* ceil(1.5) so integer delays don't undershoot */
 
-/** @} */ /* end group SHT3X_CRC */
+/** Soft reset execution time (tSR), Table 4 (not covered separately in
+ *  Table 5; same max value applies). */
+#define SHT3X_EXEC_SOFT_RESET_MS        2u   /* ceil(1.5) so integer delays don't undershoot */
+
+/** Break command execution time before sensor is back in single-shot /
+ *  idle state (section 4.8). */
+#define SHT3X_EXEC_BREAK_MS             1u
+
+/** Measurement duration, max values, Table 5 (VDD 2.15V .. <2.4V). */
+#define SHT3X_EXEC_MEAS_LOW_MS          5u   /* ceil(4.5) */
+#define SHT3X_EXEC_MEAS_MED_MS          7u   /* ceil(6.5) */
+#define SHT3X_EXEC_MEAS_HIGH_MS         16u  /* ceil(15.5) */
+
+/** @} */ /* end group SHT3X_EXEC */

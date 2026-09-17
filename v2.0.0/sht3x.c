@@ -25,6 +25,7 @@ SHT3x_Status SHT3x_CreateDefaultSensor(SHT3x_Sensor *s) {
     s->hal->i2c_write                           = NULL;
     s->hal->i2c_read                            = NULL;
     s->hal->delay_ms                            = NULL;
+    // s->internal.status_register.raw             = 0x8010u;
     return SHT3X_OK;
 }
 
@@ -64,14 +65,6 @@ SHT3x_Status SHT3x_ConfigSetClockStretch(SHT3x_Sensor *s, bool on_off) {
     return SHT3X_OK;
 }
 
-SHT3x_Status SHT3x_HalSetNResetLevel(SHT3x_Sensor *s, uint8_t level) {
-    if(!s || (level != 0 && level != 1)) {
-        return SHT3X_ERROR_INVALID_ARGS;
-    }
-    s->hal->flags.nreset_active_level = level;
-    return SHT3X_OK;
-}
-
 void SHT3x_HalSetI2cWrite(SHT3x_Sensor *s, SHT3x_I2cWrite i2c_write) {
     s->hal->i2c_write = i2c_write;
 }
@@ -93,7 +86,7 @@ void SHT3x_HalSetDelayMs(SHT3x_Sensor *s, SHT3x_DelayMs delay_ms) {
  * ========================================================================= */
 
 #define SHT3X_CRC_POLY                  0x31u /**< CRC-8 polynomial: x^8 + x^5 + x^4 + 1 */
-#define SHT3X_CRC_INIT                  0xFFu /**< CRC-8 initial value     
+#define SHT3X_CRC_INIT                  0xFFu /**< CRC-8 initial value     */
 
 
 
@@ -389,7 +382,7 @@ SHT3x_Status SHT3x_StopPeriodicMeasurement(SHT3x_Sensor *s) {
 }
 
 static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
-    if(!_sht3x_is_valid || !d) {
+    if(!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
 
@@ -430,9 +423,9 @@ SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
 
     /* CRC check. */
     uint16_t words[SHT3X_MAX_WORDS];
-    s = _sht3x_read_words(s, words, 2u);
+    st = _sht3x_read_words(s, words, 2u);
     if(st != SHT3X_OK) {
-        return s;
+        return st;
     }
 
     /* Convert raw data. */
@@ -478,6 +471,14 @@ SHT3x_Status SHT3x_SoftReset(SHT3x_Sensor *s) {
 //     } flags;
 // } SHT3x_Hal;
 
+// SHT3x_Status SHT3x_HalSetNResetLevel(SHT3x_Sensor *s, uint8_t level) {
+//     if(!s || (level != 0 && level != 1)) {
+//         return SHT3X_ERROR_INVALID_ARGS;
+//     }
+//     s->hal->flags.nreset_active_level = level;
+//     return SHT3X_OK;
+// }
+
 // /**
 //  * @brief Reset through nRESET.
 //  * @param s pointer to sensor handle.
@@ -496,6 +497,58 @@ SHT3x_Status SHT3x_SoftReset(SHT3x_Sensor *s) {
 //     s->hal->gpio_write(s->hal->gpio.nreset, !(s->hal->flags.nreset_active_level));
 //     return SHT3X_OK;
 // }
+
+/**
+ * @brief   Read the 16-bit device status register.
+ * @details Sends @ref SHT3X_CMD_READ_STATUS, then reads one word with CRC
+ *          verification. The raw register value is returned in @p status;
+ *          use the @c SHT3X_SREG_* bitmasks from @ref sht3x_defs.h to decode
+ *          individual flag bits.
+ *
+ * @param[in]  s       Pointer to an initialised @ref SHT3x_Sensor handle.
+ * @param[out] status  Pointer to receive the 16-bit status register value.
+ * @return             @ref SHT3X_OK on success.
+ * @retval  SHT3X_ERROR_INVALID_ARGS    if @p dev or @p status is NULL.
+ * @retval  SHT3X_ERROR_I2C             if any I2C transaction fails.
+ * @retval  SHT3X_ERROR_CRC             if the response fails CRC verification.
+ */
+SHT3x_Status SHT3x_ReadStatusRegister(SHT3x_Sensor *s, SHT3x_StatusRegister *status_register)
+{
+    if (!s || !status_register) {
+        return SHT3X_ERROR_INVALID_ARGS;
+    }
+
+    SHT3x_Status ret = _sht3x_send_cmd(s, SHT3X_CMD_READ_STATUS);
+    if (ret != SHT3X_OK) {
+        return ret;
+    }
+
+    uint16_t words[1];
+    ret = _sht3x_read_words(s, words, 1u);
+    if (ret != SHT3X_OK) {
+        return ret;
+    }
+
+    status_register->raw = words[0];
+    return SHT3X_OK;
+}
+
+SHT3x_Status SHT3x_ClearStatusRegister(SHT3x_Sensor *s) {
+    if(!s) {
+        return SHT3X_ERROR_INVALID_ARGS;
+    }
+
+    return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_CLEAR_STATUS, SHT3X_MIN_CMD_INTERVAL_MS);
+}
+
+
+
+
+
+
+
+
+
 
 
 

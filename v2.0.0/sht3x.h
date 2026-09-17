@@ -13,8 +13,9 @@ typedef enum {
 } SHT3x_Status;
 
 typedef struct {
-    SHT3x_Config *config;
-    SHT3x_Hal    *hal;
+    SHT3x_Config    *config;
+    SHT3x_Hal       *hal;
+    // SHT3x_Internal  internal;
 } SHT3x_Sensor;
 
 SHT3x_Status SHT3x_CreateSensor(SHT3x_Sensor *s);

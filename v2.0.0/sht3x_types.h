@@ -78,5 +78,25 @@ typedef struct {
     float humidity_rh;    /**< Relative humidity in percent (%RH)       */
 } SHT3x_Data;
 
+typedef union {
+    uint16_t raw;
+    struct {
+        uint16_t write_data_checksum_status : 1;    /* '0': checksum of last write transfer was correct '1': checksum of last write transfer failed */
+        uint16_t command_status             : 1;    /* '0': last command executed successfully.         '1': last command not processed. */
+        uint16_t reserved_3_2               : 2;    /* Reserved 3:2. */
+        uint16_t system_reset_detected      : 1;    /* '0': no reset detected since last ‘clear status register’ command. '1': reset detected */
+        uint16_t reserved_9_5               : 5;    /* Reserved 9:8:7:6:5. */
+        uint16_t t_tracking_alert           : 1;    /* ‘0’ : no alert.                                  ‘1’ : alert */
+        uint16_t rh_tracking_alert          : 1;    /* ‘0’ : no alert.                                  ‘1’ : alert */
+        uint16_t reserved_12                : 1;    /* Reserved 12. */
+        uint16_t heater_status              : 1;    /* ‘0’ : Heater OFF.                                ‘1’ : Heater ON */
+        uint16_t reserved_14                : 1;    /* Reserved 14. */
+        uint16_t alert_pending_status       : 1;    /* '0': no pending alerts.                          '1': at least one pending alert */
+    } bits;
+} SHT3x_StatusRegister;
+
+// typedef struct {
+//     SHT3x_StatusRegister status_register;
+// } SHT3x_Internal;
 
 #endif /* SHT3X_TYPES_H_ */
