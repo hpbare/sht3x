@@ -40,10 +40,16 @@ typedef enum {
     SHT3X_MPS_10  = 4,  /**< 10 measurements per second  */
 } SHT3x_MPS;
 
+/** @brief Generic GPIO handle. */
+typedef struct {
+    void *ctx;      /**<! Platform specific (e.g. GPIO port struct). */
+    int32_t pin;    /**<! Pin number/mask of platform. */
+} SHT3x_Gpio;
+
 /** @brief  */
-typedef int  (*SHT3x_I2cWrite)(uint8_t address, const uint8_t *data, size_t len);
-typedef int  (*SHT3x_I2cRead) (uint8_t address, uint8_t *data, size_t len);
-typedef void (*SHT3x_DelayMs) (uint32_t *ms);
+typedef int  (*SHT3x_I2cWrite) (uint8_t address, const uint8_t *data, size_t len);
+typedef int  (*SHT3x_I2cRead)  (uint8_t address, uint8_t *data, size_t len);
+typedef void (*SHT3x_DelayMs)  (uint32_t *ms);
 
 typedef struct {
     SHT3x_Mode          mode;           /**< Measurement mode. */
@@ -51,14 +57,12 @@ typedef struct {
     SHT3x_Repeatability repeatability;  /**< Measurement repeatability level. */
     union {
         struct {
-            SHT3x_MPS   meas_per_sec;
+            SHT3x_MPS   meas_per_sec;   /**< Periodic measurement rate. Periodic mode only. */
             bool        art_enabled;
         } periodic;
         struct {
-            bool clock_stretch;
+            bool        clock_stretch;         /**< Clock stretching. Single-shot mode only. */
         } singleshot;
-        // SHT3x_MPS       meas_per_sec;   /**< Periodic measurement rate. Periodic mode only. */
-        // bool            clock_stretch;  /**< Clock stretching. Single-shot mode only. */
     } mode_cfg;
 } SHT3x_Config;
 

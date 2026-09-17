@@ -127,11 +127,11 @@
  * ========================================================================= */
 
 #define SHT3X_EXEC_POWERUP_MS           2u  /**< Power-up time before first command (ms)          */
-#define SHT3X_EXEC_SOFT_RESET_MS        2u  /**< Soft reset execution time (ms)                   */
+#define SHT3X_EXEC_SOFT_RESET_MS        1.5  /**< Soft reset execution time (ms)                   */
 #define SHT3X_EXEC_MEAS_LOW_MS          4u  /**< Max measurement duration, low repeatability (ms) */
 #define SHT3X_EXEC_MEAS_MED_MS          6u  /**< Max measurement duration, med repeatability (ms) */
 #define SHT3X_EXEC_MEAS_HIGH_MS         15u /**< Max measurement duration, high repeatability (ms)*/
-#define SHT3X_EXEC_BREAK_MS             15u /**< Time required after BREAK command (ms)           */
+#define SHT3X_EXEC_BREAK_MS             1u  /**< Time required after BREAK command (ms)           */
 
 /** @} */ /* end group SHT3X_TIMING */
 

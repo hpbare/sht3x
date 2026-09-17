@@ -64,6 +64,14 @@ SHT3x_Status SHT3x_ConfigSetClockStretch(SHT3x_Sensor *s, bool on_off) {
     return SHT3X_OK;
 }
 
+SHT3x_Status SHT3x_HalSetNResetLevel(SHT3x_Sensor *s, uint8_t level) {
+    if(!s || (level != 0 && level != 1)) {
+        return SHT3X_ERROR_INVALID_ARGS;
+    }
+    s->hal->flags.nreset_active_level = level;
+    return SHT3X_OK;
+}
+
 void SHT3x_HalSetI2cWrite(SHT3x_Sensor *s, SHT3x_I2cWrite i2c_write) {
     s->hal->i2c_write = i2c_write;
 }
@@ -442,6 +450,52 @@ SHT3x_Status SHT3x_HeaterEnable(SHT3x_Sensor *s, bool on_off) {
     return _sht3x_send_cmd(s, on_off ? SHT3X_CMD_HEATER_ON : SHT3X_CMD_HEATER_OFF);
 }
 
+
+SHT3x_Status SHT3x_SoftReset(SHT3x_Sensor *s) {
+    if(!_sht3x_is_valid(s)) {
+        return SHT3X_ERROR_INVALID_ARGS;
+    }
+
+    return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_SOFT_RESET, SHT3X_EXEC_SOFT_RESET_MS);
+}
+
+/* Implement nRESET. */
+// #define SHT3X_NRESET_EXEC_US    1
+// typedef int  (*SHT3x_GpioWrite)(SHT3x_Gpio gpio, bool level);
+// typedef void (*SHT3x_DelayUs)  (uint32_t *us);
+
+// typedef struct {
+//     struct {
+//         SHT3x_Gpio      nreset;         /**< Can be NULL, used in case need hard reset. */
+//     } gpio;
+//     SHT3x_GpioWrite     gpio_write;     /**< Can be NULL, use for NReset. */
+//     SHT3x_I2cRead       i2c_read;       /**< Platform I2C read. Must not be NULL. */
+//     SHT3x_I2cWrite      i2c_write;      /**< Platform I2C write. Must not be NULL. */
+//     SHT3x_DelayMs       delay_ms;       /**< Platform delay in ms. Must not be NULL. */
+//     SHT3x_DelayUs       delay_us;
+//     struct {
+//         uint8_t nreset_active_level : 1; /**< nReset pin active low by default (set low level to reset) */
+//     } flags;
+// } SHT3x_Hal;
+
+// /**
+//  * @brief Reset through nRESET.
+//  * @param s pointer to sensor handle.
+//  * @return `SHT3x_Status` code.
+//  * @retval `SHT3X_OK` on success.
+//  * @retval `SHT3X_ERROR_INVALID_ARGS` in case invalid `s` handle or nRESET 
+//  * pin was not configured through `SHT3x_HalSetNResetGpio`.
+//  */
+// SHT3x_Status SHT3x_NReset(SHT3x_Sensor *s) {
+//     if(!s || (s->hal->gpio.nreset.pin == -1) || !(s->hal->gpio_write)) {
+//         return SHT3X_ERROR_INVALID_ARGS;
+//     }
+
+//     s->hal->gpio_write(s->hal->gpio.nreset, s->hal->flags.nreset_active_level);
+//     s->hal->delay_us(SHT3X_NRESET_EXEC_US);
+//     s->hal->gpio_write(s->hal->gpio.nreset, !(s->hal->flags.nreset_active_level));
+//     return SHT3X_OK;
+// }
 
 
 
