@@ -1,5 +1,7 @@
-.vscode
-/tests/
-/docs/
-/examples/
-*/tests/
+**/.vscode
+**/.devcontainer
+
+**/test/
+**/tests/
+**/private/
+**/private.*/
