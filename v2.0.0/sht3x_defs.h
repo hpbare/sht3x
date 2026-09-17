@@ -80,6 +80,7 @@
 #define SHT3X_CMD_PERIODIC_10_HIGH      0x2737u /**< 10 mps, high repeatability    */
 #define SHT3X_CMD_PERIODIC_10_MED       0x2721u /**< 10 mps, medium repeatability  */
 #define SHT3X_CMD_PERIODIC_10_LOW       0x272Au /**< 10 mps, low repeatability     */
+#define SHT3X_CMD_PERIODIC_ART          0x2B32u /**< Periodic 4 Hz, high repeatability (ART) */
 
 /** @} */ /* end group SHT3X_CMD_PERIOD */
 

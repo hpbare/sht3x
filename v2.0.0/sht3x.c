@@ -343,7 +343,7 @@ static bool _sht3x_is_valid(SHT3x_Sensor *s)
 
 
 SHT3x_Status SHT3x_StartPeriodicMeasurement(SHT3x_Sensor *s) {
-    if(!_sht3x_is_valid) {
+    if(!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
 
@@ -363,12 +363,17 @@ SHT3x_Status SHT3x_StartPeriodicMeasurement(SHT3x_Sensor *s) {
     }
 
     /* Start periodic. */
-    uint16_t cmd = _sht3x_periodic_cmd(s->config->mode_cfg.periodic.meas_per_sec, s->config->repeatability);
+    uint16_t cmd;
+    if(s->config->mode_cfg.periodic.art_enabled) {
+        cmd = SHT3X_CMD_PERIODIC_ART;
+    } else {
+        cmd = _sht3x_periodic_cmd(s->config->mode_cfg.periodic.meas_per_sec, s->config->repeatability);
+    }
     return _sht3x_send_cmd(s, cmd);
 }
 
 SHT3x_Status SHT3x_StopPeriodicMeasurement(SHT3x_Sensor *s) {
-    if(!_sht3x_is_valid) {
+    if(!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
 
