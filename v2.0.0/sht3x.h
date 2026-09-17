@@ -4,16 +4,15 @@
 #include "sht3x_types.h"
 
 typedef enum {
-    SHT3X_OK             =  0,  /**< Operation completed successfully        */
-    SHT3X_ERROR_I2C      = -1,  /**< I2C bus communication error             */
-    SHT3X_ERROR_CRC      = -2,  /**< CRC-8 validation failed on received data */
-    SHT3X_ERROR_PARAM    = -3,  /**< Invalid or out-of-range parameter        */
-    SHT3X_ERROR_NOT_INIT = -4,  /**< Driver has not been initialised          */
-    SHT3X_ERROR_INVALID_ARGS = -5
+    SHT3X_OK                 =  0,  /**< Operation completed successfully        */
+    SHT3X_ERROR_I2C          = -1,  /**< I2C bus communication error             */
+    SHT3X_ERROR_CRC          = -2,  /**< CRC-8 validation failed on received data */
+    SHT3X_ERROR_INVALID_ARGS = -3,  /**< Invalid or out-of-range parameter        */
+    SHT3X_ERROR_NOT_INIT     = -4,  /**< Driver has not been initialised          */
+    SHT3X_ERROR_INVALID_MODE = -5
 } SHT3x_Status;
 
 typedef struct {
-    SHT3x_Mode   mode;
     SHT3x_Config *config;
     SHT3x_Hal    *hal;
 } SHT3x_Sensor;
@@ -28,9 +27,9 @@ void SHT3x_ConfigSetI2cAddress(SHT3x_Sensor *s, SHT3x_I2cAddress a);
 /** @brief  */
 void SHT3x_ConfigSetRepeatability(SHT3x_Sensor *s, SHT3x_Repeatability r);
 /** @brief  */
-void SHT3x_ConfigSetMps(SHT3x_Sensor *s, SHT3x_MPS mps);
+SHT3x_Status SHT3x_ConfigSetMps(SHT3x_Sensor *s, SHT3x_MPS mps);
 /** @brief  */
-void SHT3x_ConfigSetClockStretch(SHT3x_Sensor *s, bool on_off);
+SHT3x_Status SHT3x_ConfigSetClockStretch(SHT3x_Sensor *s, bool on_off);
 
 /** @brief  */
 void SHT3x_HalSetI2cWrite(SHT3x_Sensor *s, SHT3x_I2cWrite i2c_write);

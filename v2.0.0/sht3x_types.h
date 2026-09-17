@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 /** @brief 7-bit I2C device addresses. */
 typedef enum {
@@ -39,18 +40,27 @@ typedef enum {
     SHT3X_MPS_10  = 4,  /**< 10 measurements per second  */
 } SHT3x_MPS;
 
-typedef struct {
-    // SHT3x_Mode          mode;           /**< Measurement mode. */
-    SHT3x_I2cAddress    i2c_address;    /**< 7-bit I2C device address. */
-    SHT3x_Repeatability repeatability;  /**< Measurement repeatability level. */
-    SHT3x_MPS           meas_per_sec;   /**< Periodic measurement rate. */
-    bool                clock_stretch;  /**< Clock stretching. */
-} SHT3x_Config;
-
 /** @brief  */
 typedef int  (*SHT3x_I2cWrite)(uint8_t address, const uint8_t *data, size_t len);
 typedef int  (*SHT3x_I2cRead) (uint8_t address, uint8_t *data, size_t len);
 typedef void (*SHT3x_DelayMs) (uint32_t *ms);
+
+typedef struct {
+    SHT3x_Mode          mode;           /**< Measurement mode. */
+    SHT3x_I2cAddress    i2c_address;    /**< 7-bit I2C device address. */
+    SHT3x_Repeatability repeatability;  /**< Measurement repeatability level. */
+    union {
+        struct {
+            SHT3x_MPS   meas_per_sec;
+            bool        art_enabled;
+        } periodic;
+        struct {
+            bool clock_stretch;
+        } singleshot;
+        // SHT3x_MPS       meas_per_sec;   /**< Periodic measurement rate. Periodic mode only. */
+        // bool            clock_stretch;  /**< Clock stretching. Single-shot mode only. */
+    } mode_cfg;
+} SHT3x_Config;
 
 typedef struct {
     SHT3x_I2cRead       i2c_read;       /**< Platform I2C read. Must not be NULL. */
