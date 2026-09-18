@@ -8,8 +8,7 @@ typedef enum {
     SHT3X_ERROR_I2C          = -1,  /**< I2C bus communication error              */
     SHT3X_ERROR_CRC          = -2,  /**< CRC-8 validation failed on received data */
     SHT3X_ERROR_INVALID_ARGS = -3,  /**< Invalid or out-of-range parameter        */
-    SHT3X_ERROR_NOT_INIT     = -4,  /**< Driver has not been initialised          */
-    SHT3X_ERROR_INVALID_MODE = -5   /**< Operation not valid for the configured mode */
+    SHT3X_ERROR_INVALID_MODE = -4   /**< Operation not valid for the configured mode */
 } SHT3x_Status;
 
 typedef struct {
