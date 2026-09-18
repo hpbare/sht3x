@@ -351,6 +351,16 @@ SHT3x_Status SHT3x_StopPeriodicMeasurement(SHT3x_Sensor *s) {
     return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_BREAK, SHT3X_EXEC_BREAK_MS);
 }
 
+/**
+ * @brief   Trigger a fetch of the pending periodic measurement result.
+ * @details Assumes periodic measurement is already running; sends
+ *          @ref SHT3X_CMD_FETCH_DATA. @p d is unused here (data is decoded
+ *          later by the caller) and is only checked for non-NULL.
+ *
+ * @param[in]  s  Pointer to sensor handle.
+ * @param[out] d  Unused; validated for non-NULL only.
+ * @return        @ref SHT3X_OK on success, @ref SHT3X_ERROR_I2C on bus failure.
+ */
 static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
     if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
@@ -359,6 +369,17 @@ static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_Data *d
     return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_FETCH_DATA, SHT3X_MIN_CMD_INTERVAL_MS);
 }
 
+/**
+ * @brief   Trigger a single-shot measurement and wait for it to complete.
+ * @details Sends the single-shot command matching the configured
+ *          repeatability and clock-stretch setting. @p d is unused here
+ *          (data is decoded later by the caller) and is only checked for
+ *          non-NULL.
+ *
+ * @param[in]  s  Pointer to sensor handle.
+ * @param[out] d  Unused; validated for non-NULL only.
+ * @return        @ref SHT3X_OK on success, @ref SHT3X_ERROR_I2C on bus failure.
+ */
 static SHT3x_Status SHT3x_ReadSingleShotMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
     if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
@@ -417,20 +438,6 @@ SHT3x_Status SHT3x_SoftReset(SHT3x_Sensor *s) {
     return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_SOFT_RESET, SHT3X_EXEC_SOFT_RESET_MS);
 }
 
-/**
- * @brief   Read the 16-bit device status register.
- * @details Sends @ref SHT3X_CMD_READ_STATUS, then reads one word with CRC
- *          verification. The raw register value is returned in @p status;
- *          use the @c SHT3X_SREG_* bitmasks from @ref sht3x_defs.h to decode
- *          individual flag bits.
- *
- * @param[in]  s               Pointer to an initialised @ref SHT3x_Sensor handle.
- * @param[out] status_register Pointer to receive the 16-bit status register value.
- * @return                     @ref SHT3X_OK on success.
- * @retval  SHT3X_ERROR_INVALID_ARGS  if @p s or @p status_register is NULL.
- * @retval  SHT3X_ERROR_I2C           if any I2C transaction fails.
- * @retval  SHT3X_ERROR_CRC           if the response fails CRC verification.
- */
 SHT3x_Status SHT3x_ReadStatusRegister(SHT3x_Sensor *s, SHT3x_StatusRegister *status_register)
 {
     if (!_sht3x_is_valid(s) || !status_register) {
