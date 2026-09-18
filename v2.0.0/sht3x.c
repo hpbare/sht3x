@@ -12,66 +12,66 @@
 #include "sht3x_defs.h"
 
 SHT3x_Status SHT3x_CreateDefaultSensor(SHT3x_Sensor *s) {
-    if (!s || !s->config || !s->hal) {
+    if (!s) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-    s->config->mode                           = SHT3X_MODE_PERIODIC;
-    s->config->i2c_address                    = SHT3X_I2C_ADDR_VSS;
-    s->config->repeatability                  = SHT3X_REPEAT_HIGH;
-    s->config->mode_cfg.periodic.meas_per_sec = SHT3X_MPS_1;
-    s->config->mode_cfg.periodic.art_enabled  = false;
-    s->hal->i2c_write                         = NULL;
-    s->hal->i2c_read                          = NULL;
-    s->hal->delay_ms                          = NULL;
+    s->config.mode                            = SHT3X_MODE_PERIODIC;
+    s->config.i2c_address                    = SHT3X_I2C_ADDR_VSS;
+    s->config.repeatability                  = SHT3X_REPEAT_HIGH;
+    s->config.mode_cfg.periodic.meas_per_sec = SHT3X_MPS_1;
+    s->config.mode_cfg.periodic.art_enabled  = false;
+    s->hal.i2c_write                         = NULL;
+    s->hal.i2c_read                          = NULL;
+    s->hal.delay_ms                          = NULL;
     return SHT3X_OK;
 }
 
 void SHT3x_SetMode(SHT3x_Sensor *s, SHT3x_Mode m) {
-    s->config->mode = m;
+    s->config.mode = m;
 }
 
 void SHT3x_ConfigSetI2cAddress(SHT3x_Sensor *s, SHT3x_I2cAddress a) {
-    s->config->i2c_address = a;
+    s->config.i2c_address = a;
 }
 
 void SHT3x_ConfigSetRepeatability(SHT3x_Sensor *s, SHT3x_Repeatability r) {
-    s->config->repeatability = r;
+    s->config.repeatability = r;
 }
 
 SHT3x_Status SHT3x_ConfigSetMps(SHT3x_Sensor *s, SHT3x_MPS mps) {
-    if (s->config->mode != SHT3X_MODE_PERIODIC) {
+    if (s->config.mode != SHT3X_MODE_PERIODIC) {
         return SHT3X_ERROR_INVALID_MODE;
     }
-    s->config->mode_cfg.periodic.meas_per_sec = mps;
+    s->config.mode_cfg.periodic.meas_per_sec = mps;
     return SHT3X_OK;
 }
 
 SHT3x_Status SHT3x_ConfigSetArtEnable(SHT3x_Sensor *s, bool on_off) {
-    if (s->config->mode != SHT3X_MODE_PERIODIC) {
+    if (s->config.mode != SHT3X_MODE_PERIODIC) {
         return SHT3X_ERROR_INVALID_MODE;
     }
-    s->config->mode_cfg.periodic.art_enabled = on_off;
+    s->config.mode_cfg.periodic.art_enabled = on_off;
     return SHT3X_OK;
 }
 
 SHT3x_Status SHT3x_ConfigSetClockStretch(SHT3x_Sensor *s, bool on_off) {
-    if (s->config->mode != SHT3X_MODE_SINGLE_SHOT) {
+    if (s->config.mode != SHT3X_MODE_SINGLE_SHOT) {
         return SHT3X_ERROR_INVALID_MODE;
     }
-    s->config->mode_cfg.singleshot.clock_stretch = on_off;
+    s->config.mode_cfg.singleshot.clock_stretch = on_off;
     return SHT3X_OK;
 }
 
 void SHT3x_HalSetI2cWrite(SHT3x_Sensor *s, SHT3x_I2cWrite i2c_write) {
-    s->hal->i2c_write = i2c_write;
+    s->hal.i2c_write = i2c_write;
 }
 
 void SHT3x_HalSetI2cRead(SHT3x_Sensor *s, SHT3x_I2cRead i2c_read) {
-    s->hal->i2c_read = i2c_read;
+    s->hal.i2c_read = i2c_read;
 }
 
 void SHT3x_HalSetDelayMs(SHT3x_Sensor *s, SHT3x_DelayMs delay_ms) {
-    s->hal->delay_ms = delay_ms;
+    s->hal.delay_ms = delay_ms;
 }
 
 /* =========================================================================
@@ -129,7 +129,7 @@ static SHT3x_Status _sht3x_send_cmd(SHT3x_Sensor *s, uint16_t cmd)
         (uint8_t)(cmd >> 8),
         (uint8_t)(cmd & 0xFF)
     };
-    return (s->hal->i2c_write(s->config->i2c_address, buf, 2) == 0) ? SHT3X_OK : SHT3X_ERROR_I2C;
+    return (s->hal.i2c_write(s->config.i2c_address, buf, 2) == 0) ? SHT3X_OK : SHT3X_ERROR_I2C;
 }
 
 /**
@@ -146,7 +146,7 @@ static SHT3x_Status _sht3x_send_cmd_with_delay(SHT3x_Sensor *s, uint16_t cmd, ui
 {
     SHT3x_Status st = _sht3x_send_cmd(s, cmd);
     if (st == SHT3X_OK) {
-        s->hal->delay_ms(exec_ms);
+        s->hal.delay_ms(exec_ms);
     }
     return st;
 }
@@ -173,7 +173,7 @@ static SHT3x_Status _sht3x_read_words(SHT3x_Sensor *s, uint16_t *words, size_t n
 
     uint8_t buf[SHT3X_BUF_SIZE];
 
-    if (s->hal->i2c_read(s->config->i2c_address, buf, n_words * 3u) != 0) {
+    if (s->hal.i2c_read(s->config.i2c_address, buf, n_words * 3u) != 0) {
         return SHT3X_ERROR_I2C;
     }
 
@@ -284,24 +284,21 @@ static uint32_t _sht3x_meas_delay_ms(SHT3x_Repeatability rep)
  */
 static bool _sht3x_is_valid(SHT3x_Sensor *s)
 {
-    if (!s || !(s->hal) || !(s->hal->delay_ms) || !(s->hal->i2c_read) || !(s->hal->i2c_write)) {
+    if (!s || !(s->hal.delay_ms) || !(s->hal.i2c_read) || !(s->hal.i2c_write)) {
         return false;
     }
-    if (!(s->config)) {
+    if (s->config.i2c_address != SHT3X_I2C_ADDR_VDD && s->config.i2c_address != SHT3X_I2C_ADDR_VSS) {
         return false;
     }
-    if (s->config->i2c_address != SHT3X_I2C_ADDR_VDD && s->config->i2c_address != SHT3X_I2C_ADDR_VSS) {
+    if (s->config.mode != SHT3X_MODE_SINGLE_SHOT && s->config.mode != SHT3X_MODE_PERIODIC) {
         return false;
     }
-    if (s->config->mode != SHT3X_MODE_SINGLE_SHOT && s->config->mode != SHT3X_MODE_PERIODIC) {
+    if (s->config.repeatability != SHT3X_REPEAT_LOW &&
+        s->config.repeatability != SHT3X_REPEAT_MEDIUM &&
+        s->config.repeatability != SHT3X_REPEAT_HIGH) {
         return false;
     }
-    if (s->config->repeatability != SHT3X_REPEAT_LOW &&
-        s->config->repeatability != SHT3X_REPEAT_MEDIUM &&
-        s->config->repeatability != SHT3X_REPEAT_HIGH) {
-        return false;
-    }
-    if (s->config->mode == SHT3X_MODE_PERIODIC && s->config->mode_cfg.periodic.meas_per_sec > SHT3X_MPS_10) {
+    if (s->config.mode == SHT3X_MODE_PERIODIC && s->config.mode_cfg.periodic.meas_per_sec > SHT3X_MPS_10) {
         return false;
     }
     return true;
@@ -319,14 +316,14 @@ SHT3x_Status SHT3x_StartPeriodicMeasurement(SHT3x_Sensor *s) {
     if (!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-    if (s->config->mode != SHT3X_MODE_PERIODIC) {
+    if (s->config.mode != SHT3X_MODE_PERIODIC) {
         return SHT3X_ERROR_INVALID_MODE;
     }
 
     SHT3x_Status st;
 
     /* Power up. */
-    s->hal->delay_ms(SHT3X_EXEC_POWERUP_MS);
+    s->hal.delay_ms(SHT3X_EXEC_POWERUP_MS);
 
     /* Reset. */
     st = _sht3x_send_cmd_with_delay(s, SHT3X_CMD_SOFT_RESET, SHT3X_EXEC_SOFT_RESET_MS);
@@ -336,10 +333,10 @@ SHT3x_Status SHT3x_StartPeriodicMeasurement(SHT3x_Sensor *s) {
 
     /* Start periodic. */
     uint16_t cmd;
-    if (s->config->mode_cfg.periodic.art_enabled) {
+    if (s->config.mode_cfg.periodic.art_enabled) {
         cmd = SHT3X_CMD_START_PERIODIC_ART;
     } else {
-        cmd = _sht3x_start_periodic_cmd(s->config->mode_cfg.periodic.meas_per_sec, s->config->repeatability);
+        cmd = _sht3x_start_periodic_cmd(s->config.mode_cfg.periodic.meas_per_sec, s->config.repeatability);
     }
     return _sht3x_send_cmd_with_delay(s, cmd, SHT3X_MIN_CMD_INTERVAL_MS);
 }
@@ -384,13 +381,13 @@ static SHT3x_Status SHT3x_ReadSingleShotMeasurement(SHT3x_Sensor *s, SHT3x_Measu
     if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-    bool clock_stretch = s->config->mode_cfg.singleshot.clock_stretch;
-    uint16_t cmd = _sht3x_read_singleshot_cmd(s->config->repeatability, clock_stretch);
+    bool clock_stretch = s->config.mode_cfg.singleshot.clock_stretch;
+    uint16_t cmd = _sht3x_read_singleshot_cmd(s->config.repeatability, clock_stretch);
 
     if (clock_stretch) {
         return _sht3x_send_cmd_with_delay(s, cmd, SHT3X_MIN_CMD_INTERVAL_MS);
     } else {
-        uint32_t exec_ms = _sht3x_meas_delay_ms(s->config->repeatability);
+        uint32_t exec_ms = _sht3x_meas_delay_ms(s->config.repeatability);
         return _sht3x_send_cmd_with_delay(s, cmd, exec_ms);
     }
 }
@@ -401,7 +398,7 @@ SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_MeasurementData *d) {
     }
 
     SHT3x_Status st = SHT3X_OK;
-    if (s->config->mode == SHT3X_MODE_PERIODIC) {
+    if (s->config.mode == SHT3X_MODE_PERIODIC) {
         st = SHT3x_ReadPeriodicMeasurement(s, d);
     } else {
         st = SHT3x_ReadSingleShotMeasurement(s, d);
