@@ -8,13 +8,13 @@
 /** @brief 7-bit I2C device addresses. */
 typedef enum {
     SHT3X_I2C_ADDR_VSS          = 0x44u,    /**< ADDR pin connected to VSS (default) */
-    SHT3X_I2C_ADDR_VDD          = 0x45u     /**< ADDR pin connected to VDD */
+    SHT3X_I2C_ADDR_VDD          = 0x45u     /**< ADDR pin connected to VDD           */
 } SHT3x_I2cAddress;
 
 /** @brief Sensor operating mode. */
 typedef enum {
-    SHT3X_MODE_SINGLE_SHOT = 0,             /**< On-demand single measurement per @ref SHT3x_Read call  */
-    SHT3X_MODE_PERIODIC    = 1,             /**< Sensor samples autonomously at the configured MPS rate  */
+    SHT3X_MODE_SINGLE_SHOT = 0, /**< On-demand single measurement per @ref SHT3x_ReadMeasurement call */
+    SHT3X_MODE_PERIODIC    = 1  /**< Sensor samples autonomously at the configured MPS rate            */
 } SHT3x_Mode;
 
 /**
@@ -23,80 +23,86 @@ typedef enum {
  *          conversion time and higher power consumption.
  */
 typedef enum {
-    SHT3X_REPEAT_LOW    = 0,  /**< Low repeatability - fastest, lowest accuracy  */
+    SHT3X_REPEAT_LOW    = 0,  /**< Low repeatability - fastest, lowest accuracy   */
     SHT3X_REPEAT_MEDIUM = 1,  /**< Medium repeatability                          */
-    SHT3X_REPEAT_HIGH   = 2,  /**< High repeatability - slowest, highest accuracy */
+    SHT3X_REPEAT_HIGH   = 2   /**< High repeatability - slowest, highest accuracy */
 } SHT3x_Repeatability;
 
 /**
  * @brief Periodic-mode measurement rate (measurements per second).
- * @details Only relevant when @ref SHT3x_Dev::mode is @ref SHT3X_MODE_PERIODIC.
+ * @details Only relevant when @ref SHT3x_Config::mode is @ref SHT3X_MODE_PERIODIC.
  */
 typedef enum {
-    SHT3X_MPS_05 = 0,   /**< 0.5 measurements per second */
-    SHT3X_MPS_1   = 1,  /**< 1 measurement per second    */
-    SHT3X_MPS_2   = 2,  /**< 2 measurements per second   */
-    SHT3X_MPS_4   = 3,  /**< 4 measurements per second   */
-    SHT3X_MPS_10  = 4,  /**< 10 measurements per second  */
+    SHT3X_MPS_05 = 0,  /**< 0.5 measurements per second */
+    SHT3X_MPS_1  = 1,  /**< 1 measurement per second    */
+    SHT3X_MPS_2  = 2,  /**< 2 measurements per second   */
+    SHT3X_MPS_4  = 3,  /**< 4 measurements per second   */
+    SHT3X_MPS_10 = 4   /**< 10 measurements per second  */
 } SHT3x_MPS;
 
 /** @brief Generic GPIO handle. */
 typedef struct {
-    void *ctx;      /**<! Platform specific (e.g. GPIO port struct). */
-    int32_t pin;    /**<! Pin number/mask of platform. */
+    void    *ctx;   /**< Platform-specific context (e.g. GPIO port struct). */
+    int32_t  pin;   /**< Pin number/mask on the platform.                   */
 } SHT3x_Gpio;
 
-/** @brief  */
-typedef int  (*SHT3x_I2cWrite) (uint8_t address, const uint8_t *data, size_t len);
-typedef int  (*SHT3x_I2cRead)  (uint8_t address, uint8_t *data, size_t len);
-typedef void (*SHT3x_DelayMs)  (uint32_t *ms);
+/** @brief Platform I2C write callback. Returns 0 on success. */
+typedef int  (*SHT3x_I2cWrite)(uint8_t address, const uint8_t *data, size_t len);
+
+/** @brief Platform I2C read callback. Returns 0 on success. */
+typedef int  (*SHT3x_I2cRead) (uint8_t address, uint8_t *data, size_t len);
+
+/** @brief Platform blocking delay callback, in milliseconds. */
+typedef void (*SHT3x_DelayMs) (uint32_t ms);
 
 typedef struct {
-    SHT3x_Mode          mode;           /**< Measurement mode. */
-    SHT3x_I2cAddress    i2c_address;    /**< 7-bit I2C device address. */
+    SHT3x_Mode          mode;           /**< Measurement mode.                */
+    SHT3x_I2cAddress    i2c_address;    /**< 7-bit I2C device address.        */
     SHT3x_Repeatability repeatability;  /**< Measurement repeatability level. */
     union {
         struct {
             SHT3x_MPS   meas_per_sec;   /**< Periodic measurement rate. Periodic mode only. */
-            bool        art_enabled;
+            bool        art_enabled;    /**< Enable accelerated response time. Periodic mode only. */
         } periodic;
         struct {
-            bool        clock_stretch;         /**< Clock stretching. Single-shot mode only. */
+            bool        clock_stretch;  /**< Clock stretching. Single-shot mode only. */
         } singleshot;
     } mode_cfg;
 } SHT3x_Config;
 
 typedef struct {
-    SHT3x_I2cRead       i2c_read;       /**< Platform I2C read. Must not be NULL. */
-    SHT3x_I2cWrite      i2c_write;      /**< Platform I2C write. Must not be NULL. */
-    SHT3x_DelayMs       delay_ms;       /**< Platform delay in ms. Must not be NULL. */
+    SHT3x_I2cRead   i2c_read;   /**< Platform I2C read. Must not be NULL.  */
+    SHT3x_I2cWrite  i2c_write;  /**< Platform I2C write. Must not be NULL. */
+    SHT3x_DelayMs   delay_ms;   /**< Platform delay in ms. Must not be NULL. */
 } SHT3x_Hal;
 
-/** @brief Measurement result container populated by @ref SHT3x_Read. */
+/** @brief Measurement result container populated by @ref SHT3x_ReadMeasurement. */
 typedef struct {
-    float temperature_c;  /**< Temperature in degrees Celsius           */
-    float humidity_rh;    /**< Relative humidity in percent (%RH)       */
+    float temperature_c;  /**< Temperature in degrees Celsius     */
+    float humidity_rh;    /**< Relative humidity in percent (%RH) */
 } SHT3x_Data;
 
+/**
+ * @brief Decoded view of the 16-bit status register (Table 18).
+ * @note  Bitfield layout is compiler/ABI dependent. For portable code across
+ *        targets, prefer decoding @ref SHT3x_StatusRegister::raw with the
+ *        SHT3X_SREG_* bitmasks from sht3x_defs.h instead of the bitfields.
+ */
 typedef union {
     uint16_t raw;
     struct {
-        uint16_t write_data_checksum_status : 1;    /* '0': checksum of last write transfer was correct '1': checksum of last write transfer failed */
-        uint16_t command_status             : 1;    /* '0': last command executed successfully.         '1': last command not processed. */
-        uint16_t reserved_3_2               : 2;    /* Reserved 3:2. */
-        uint16_t system_reset_detected      : 1;    /* '0': no reset detected since last ‘clear status register’ command. '1': reset detected */
-        uint16_t reserved_9_5               : 5;    /* Reserved 9:8:7:6:5. */
-        uint16_t t_tracking_alert           : 1;    /* ‘0’ : no alert.                                  ‘1’ : alert */
-        uint16_t rh_tracking_alert          : 1;    /* ‘0’ : no alert.                                  ‘1’ : alert */
-        uint16_t reserved_12                : 1;    /* Reserved 12. */
-        uint16_t heater_status              : 1;    /* ‘0’ : Heater OFF.                                ‘1’ : Heater ON */
-        uint16_t reserved_14                : 1;    /* Reserved 14. */
-        uint16_t alert_pending_status       : 1;    /* '0': no pending alerts.                          '1': at least one pending alert */
+        uint16_t write_data_checksum_status : 1;  /* '0': last write checksum OK.     '1': checksum failed.   */
+        uint16_t command_status             : 1;  /* '0': last command executed OK.   '1': not processed.     */
+        uint16_t reserved_3_2               : 2;  /* Reserved 3:2.                                            */
+        uint16_t system_reset_detected      : 1;  /* '0': no reset since last clear.  '1': reset detected.    */
+        uint16_t reserved_9_5               : 5;  /* Reserved 9:8:7:6:5.                                      */
+        uint16_t t_tracking_alert           : 1;  /* '0': no alert.                   '1': alert.             */
+        uint16_t rh_tracking_alert          : 1;  /* '0': no alert.                   '1': alert.             */
+        uint16_t reserved_12                : 1;  /* Reserved 12.                                             */
+        uint16_t heater_status               : 1;  /* '0': heater off.                 '1': heater on.        */
+        uint16_t reserved_14                : 1;  /* Reserved 14.                                             */
+        uint16_t alert_pending_status       : 1;  /* '0': no pending alerts.          '1': at least one alert.*/
     } bits;
 } SHT3x_StatusRegister;
-
-// typedef struct {
-//     SHT3x_StatusRegister status_register;
-// } SHT3x_Internal;
 
 #endif /* SHT3X_TYPES_H_ */

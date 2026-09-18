@@ -1,10 +1,9 @@
-
 /**
  * @file    sht3x.c
  * @brief   Bare-metal driver implementation for Sensirion SHT3x-DIS.
  * @version 2.0
  *
- * @details Datasheet: SHT3x-DIS, August 2016 – Version 3.
+ * @details Datasheet: SHT3x-DIS, August 2016 - Version 3.
  */
 #include "sht3x.h"
 #include <stdint.h>
@@ -12,19 +11,18 @@
 
 #include "sht3x_defs.h"
 
-
 SHT3x_Status SHT3x_CreateDefaultSensor(SHT3x_Sensor *s) {
-    if(!s) {
+    if (!s || !s->config || !s->hal) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-    s->config->mode                             = SHT3X_MODE_PERIODIC;
-    s->config->i2c_address                      = SHT3X_I2C_ADDR_VSS;
-    s->config->repeatability                    = SHT3X_REPEAT_HIGH;
-    s->config->mode_cfg.periodic.meas_per_sec   = SHT3X_MPS_1;
-    s->config->mode_cfg.periodic.art_enabled    = false;
-    s->hal->i2c_write                           = NULL;
-    s->hal->i2c_read                            = NULL;
-    s->hal->delay_ms                            = NULL;
+    s->config->mode                           = SHT3X_MODE_PERIODIC;
+    s->config->i2c_address                    = SHT3X_I2C_ADDR_VSS;
+    s->config->repeatability                  = SHT3X_REPEAT_HIGH;
+    s->config->mode_cfg.periodic.meas_per_sec = SHT3X_MPS_1;
+    s->config->mode_cfg.periodic.art_enabled  = false;
+    s->hal->i2c_write                         = NULL;
+    s->hal->i2c_read                          = NULL;
+    s->hal->delay_ms                          = NULL;
     return SHT3X_OK;
 }
 
@@ -41,7 +39,7 @@ void SHT3x_ConfigSetRepeatability(SHT3x_Sensor *s, SHT3x_Repeatability r) {
 }
 
 SHT3x_Status SHT3x_ConfigSetMps(SHT3x_Sensor *s, SHT3x_MPS mps) {
-    if(s->config->mode != SHT3X_MODE_PERIODIC) {
+    if (s->config->mode != SHT3X_MODE_PERIODIC) {
         return SHT3X_ERROR_INVALID_MODE;
     }
     s->config->mode_cfg.periodic.meas_per_sec = mps;
@@ -49,7 +47,7 @@ SHT3x_Status SHT3x_ConfigSetMps(SHT3x_Sensor *s, SHT3x_MPS mps) {
 }
 
 SHT3x_Status SHT3x_ConfigSetArtEnable(SHT3x_Sensor *s, bool on_off) {
-    if(s->config->mode != SHT3X_MODE_PERIODIC) {
+    if (s->config->mode != SHT3X_MODE_PERIODIC) {
         return SHT3X_ERROR_INVALID_MODE;
     }
     s->config->mode_cfg.periodic.art_enabled = on_off;
@@ -57,7 +55,7 @@ SHT3x_Status SHT3x_ConfigSetArtEnable(SHT3x_Sensor *s, bool on_off) {
 }
 
 SHT3x_Status SHT3x_ConfigSetClockStretch(SHT3x_Sensor *s, bool on_off) {
-    if(s->config->mode != SHT3X_MODE_SINGLE_SHOT) {
+    if (s->config->mode != SHT3X_MODE_SINGLE_SHOT) {
         return SHT3X_ERROR_INVALID_MODE;
     }
     s->config->mode_cfg.singleshot.clock_stretch = on_off;
@@ -76,25 +74,18 @@ void SHT3x_HalSetDelayMs(SHT3x_Sensor *s, SHT3x_DelayMs delay_ms) {
     s->hal->delay_ms = delay_ms;
 }
 
-
-/* =========================================================================
- * @defgroup SHT3X_CRC CRC-8 Parameters
- * @brief    CRC parameters for data integrity verification (Table 19).
- *           Polynomial: 0x31 (x^8 + x^5 + x^4 + 1), Initial value: 0xFF.
- * @{
- * ========================================================================= */
-
-#define SHT3X_CRC_POLY                  0x31u /**< CRC-8 polynomial: x^8 + x^5 + x^4 + 1 */
-#define SHT3X_CRC_INIT                  0xFFu /**< CRC-8 initial value     */
-
 /* =========================================================================
  * @defgroup SHT3X_PRIVATE_DEFS Private Constants
- * @brief    Internal buffer sizing constants, not exposed in the public API.
+ * @brief    Internal buffer sizing and CRC constants, not exposed in the
+ *           public API.
  * @{
  * ========================================================================= */
 
-#define SHT3X_MAX_WORDS  2u                         /**< Max data words per read transaction         */
-#define SHT3X_BUF_SIZE   (SHT3X_MAX_WORDS * 3u)     /**< Raw byte buffer size: 2 bytes + 1 CRC/word  */
+#define SHT3X_CRC_POLY                  0x31u /**< CRC-8 polynomial: x^8 + x^5 + x^4 + 1 (Table 19) */
+#define SHT3X_CRC_INIT                  0xFFu /**< CRC-8 initial value                              */
+
+#define SHT3X_MAX_WORDS  2u                     /**< Max data words per read transaction        */
+#define SHT3X_BUF_SIZE   (SHT3X_MAX_WORDS * 3u)  /**< Raw byte buffer size: 2 bytes + 1 CRC/word */
 
 /** @} */ /* end group SHT3X_PRIVATE_DEFS */
 
@@ -202,7 +193,7 @@ static SHT3x_Status _sht3x_read_words(SHT3x_Sensor *s, uint16_t *words, size_t n
  *          repeatability and clock-stretching configuration.
  *
  * @param[in] rep  Repeatability level (@ref SHT3x_Repeatability).
- * @param[in] clock_stretch_on   @c true to select the clock-stretching variant.
+ * @param[in] clock_stretch_on  @c true to select the clock-stretching variant.
  * @return         16-bit command code corresponding to the requested settings.
  */
 static uint16_t _sht3x_read_singleshot_cmd(SHT3x_Repeatability rep, bool clock_stretch_on)
@@ -296,7 +287,7 @@ static bool _sht3x_is_valid(SHT3x_Sensor *s)
     if (!s || !(s->hal) || !(s->hal->delay_ms) || !(s->hal->i2c_read) || !(s->hal->i2c_write)) {
         return false;
     }
-    if(!(s->config)) {
+    if (!(s->config)) {
         return false;
     }
     if (s->config->i2c_address != SHT3X_I2C_ADDR_VDD && s->config->i2c_address != SHT3X_I2C_ADDR_VSS) {
@@ -324,17 +315,14 @@ static bool _sht3x_is_valid(SHT3x_Sensor *s)
  * @{
  * ========================================================================= */
 
-
-
 SHT3x_Status SHT3x_StartPeriodicMeasurement(SHT3x_Sensor *s) {
-    if(!_sht3x_is_valid(s)) {
+    if (!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-
-    if(s->config->mode != SHT3X_MODE_PERIODIC) {
+    if (s->config->mode != SHT3X_MODE_PERIODIC) {
         return SHT3X_ERROR_INVALID_MODE;
     }
-    
+
     SHT3x_Status st;
 
     /* Power up. */
@@ -348,7 +336,7 @@ SHT3x_Status SHT3x_StartPeriodicMeasurement(SHT3x_Sensor *s) {
 
     /* Start periodic. */
     uint16_t cmd;
-    if(s->config->mode_cfg.periodic.art_enabled) {
+    if (s->config->mode_cfg.periodic.art_enabled) {
         cmd = SHT3X_CMD_START_PERIODIC_ART;
     } else {
         cmd = _sht3x_start_periodic_cmd(s->config->mode_cfg.periodic.meas_per_sec, s->config->repeatability);
@@ -357,15 +345,14 @@ SHT3x_Status SHT3x_StartPeriodicMeasurement(SHT3x_Sensor *s) {
 }
 
 SHT3x_Status SHT3x_StopPeriodicMeasurement(SHT3x_Sensor *s) {
-    if(!_sht3x_is_valid(s)) {
+    if (!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-
     return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_BREAK, SHT3X_EXEC_BREAK_MS);
 }
 
 static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
-    if(!_sht3x_is_valid(s) || !d) {
+    if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
 
@@ -373,41 +360,39 @@ static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_Data *d
 }
 
 static SHT3x_Status SHT3x_ReadSingleShotMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
-    if(!_sht3x_is_valid || !d) {
+    if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
     bool clock_stretch = s->config->mode_cfg.singleshot.clock_stretch;
     uint16_t cmd = _sht3x_read_singleshot_cmd(s->config->repeatability, clock_stretch);
 
-    if(clock_stretch) {
+    if (clock_stretch) {
         return _sht3x_send_cmd_with_delay(s, cmd, SHT3X_MIN_CMD_INTERVAL_MS);
     } else {
         uint32_t exec_ms = _sht3x_meas_delay_ms(s->config->repeatability);
         return _sht3x_send_cmd_with_delay(s, cmd, exec_ms);
     }
-
-    return SHT3X_OK;
 }
 
 SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
-    if(!s || !d) {
+    if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
 
     SHT3x_Status st = SHT3X_OK;
-    if(s->config->mode == SHT3X_MODE_PERIODIC) {
+    if (s->config->mode == SHT3X_MODE_PERIODIC) {
         st = SHT3x_ReadPeriodicMeasurement(s, d);
     } else {
         st = SHT3x_ReadSingleShotMeasurement(s, d);
     }
-    if(st != SHT3X_OK) {
+    if (st != SHT3X_OK) {
         return st;
     }
 
     /* CRC check. */
     uint16_t words[SHT3X_MAX_WORDS];
     st = _sht3x_read_words(s, words, 2u);
-    if(st != SHT3X_OK) {
+    if (st != SHT3X_OK) {
         return st;
     }
 
@@ -419,67 +404,18 @@ SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
 }
 
 SHT3x_Status SHT3x_HeaterEnable(SHT3x_Sensor *s, bool on_off) {
-    if(!s) {
+    if (!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-
     return _sht3x_send_cmd_with_delay(s, on_off ? SHT3X_CMD_HEATER_ON : SHT3X_CMD_HEATER_OFF, SHT3X_MIN_CMD_INTERVAL_MS);
 }
 
-
 SHT3x_Status SHT3x_SoftReset(SHT3x_Sensor *s) {
-    if(!_sht3x_is_valid(s)) {
+    if (!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-
     return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_SOFT_RESET, SHT3X_EXEC_SOFT_RESET_MS);
 }
-
-/* Implement nRESET. */
-// #define SHT3X_NRESET_EXEC_US    1
-// typedef int  (*SHT3x_GpioWrite)(SHT3x_Gpio gpio, bool level);
-// typedef void (*SHT3x_DelayUs)  (uint32_t *us);
-
-// typedef struct {
-//     struct {
-//         SHT3x_Gpio      nreset;         /**< Can be NULL, used in case need hard reset. */
-//     } gpio;
-//     SHT3x_GpioWrite     gpio_write;     /**< Can be NULL, use for NReset. */
-//     SHT3x_I2cRead       i2c_read;       /**< Platform I2C read. Must not be NULL. */
-//     SHT3x_I2cWrite      i2c_write;      /**< Platform I2C write. Must not be NULL. */
-//     SHT3x_DelayMs       delay_ms;       /**< Platform delay in ms. Must not be NULL. */
-//     SHT3x_DelayUs       delay_us;
-//     struct {
-//         uint8_t nreset_active_level : 1; /**< nReset pin active low by default (set low level to reset) */
-//     } flags;
-// } SHT3x_Hal;
-
-// SHT3x_Status SHT3x_HalSetNResetLevel(SHT3x_Sensor *s, uint8_t level) {
-//     if(!s || (level != 0 && level != 1)) {
-//         return SHT3X_ERROR_INVALID_ARGS;
-//     }
-//     s->hal->flags.nreset_active_level = level;
-//     return SHT3X_OK;
-// }
-
-// /**
-//  * @brief Reset through nRESET.
-//  * @param s pointer to sensor handle.
-//  * @return `SHT3x_Status` code.
-//  * @retval `SHT3X_OK` on success.
-//  * @retval `SHT3X_ERROR_INVALID_ARGS` in case invalid `s` handle or nRESET 
-//  * pin was not configured through `SHT3x_HalSetNResetGpio`.
-//  */
-// SHT3x_Status SHT3x_NReset(SHT3x_Sensor *s) {
-//     if(!s || (s->hal->gpio.nreset.pin == -1) || !(s->hal->gpio_write)) {
-//         return SHT3X_ERROR_INVALID_ARGS;
-//     }
-
-//     s->hal->gpio_write(s->hal->gpio.nreset, s->hal->flags.nreset_active_level);
-//     s->hal->delay_us(SHT3X_NRESET_EXEC_US);
-//     s->hal->gpio_write(s->hal->gpio.nreset, !(s->hal->flags.nreset_active_level));
-//     return SHT3X_OK;
-// }
 
 /**
  * @brief   Read the 16-bit device status register.
@@ -488,16 +424,16 @@ SHT3x_Status SHT3x_SoftReset(SHT3x_Sensor *s) {
  *          use the @c SHT3X_SREG_* bitmasks from @ref sht3x_defs.h to decode
  *          individual flag bits.
  *
- * @param[in]  s       Pointer to an initialised @ref SHT3x_Sensor handle.
- * @param[out] status  Pointer to receive the 16-bit status register value.
- * @return             @ref SHT3X_OK on success.
- * @retval  SHT3X_ERROR_INVALID_ARGS    if @p dev or @p status is NULL.
- * @retval  SHT3X_ERROR_I2C             if any I2C transaction fails.
- * @retval  SHT3X_ERROR_CRC             if the response fails CRC verification.
+ * @param[in]  s               Pointer to an initialised @ref SHT3x_Sensor handle.
+ * @param[out] status_register Pointer to receive the 16-bit status register value.
+ * @return                     @ref SHT3X_OK on success.
+ * @retval  SHT3X_ERROR_INVALID_ARGS  if @p s or @p status_register is NULL.
+ * @retval  SHT3X_ERROR_I2C           if any I2C transaction fails.
+ * @retval  SHT3X_ERROR_CRC           if the response fails CRC verification.
  */
 SHT3x_Status SHT3x_ReadStatusRegister(SHT3x_Sensor *s, SHT3x_StatusRegister *status_register)
 {
-    if (!s || !status_register) {
+    if (!_sht3x_is_valid(s) || !status_register) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
 
@@ -517,9 +453,10 @@ SHT3x_Status SHT3x_ReadStatusRegister(SHT3x_Sensor *s, SHT3x_StatusRegister *sta
 }
 
 SHT3x_Status SHT3x_ClearStatusRegister(SHT3x_Sensor *s) {
-    if(!s) {
+    if (!_sht3x_is_valid(s)) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
-
     return _sht3x_send_cmd_with_delay(s, SHT3X_CMD_CLEAR_STATUS, SHT3X_MIN_CMD_INTERVAL_MS);
 }
+
+/** @} */ /* end group SHT3X_PUBLIC */
