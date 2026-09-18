@@ -361,7 +361,7 @@ SHT3x_Status SHT3x_StopPeriodicMeasurement(SHT3x_Sensor *s) {
  * @param[out] d  Unused; validated for non-NULL only.
  * @return        @ref SHT3X_OK on success, @ref SHT3X_ERROR_I2C on bus failure.
  */
-static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
+static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_MeasurementData *d) {
     if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
@@ -380,7 +380,7 @@ static SHT3x_Status SHT3x_ReadPeriodicMeasurement(SHT3x_Sensor *s, SHT3x_Data *d
  * @param[out] d  Unused; validated for non-NULL only.
  * @return        @ref SHT3X_OK on success, @ref SHT3X_ERROR_I2C on bus failure.
  */
-static SHT3x_Status SHT3x_ReadSingleShotMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
+static SHT3x_Status SHT3x_ReadSingleShotMeasurement(SHT3x_Sensor *s, SHT3x_MeasurementData *d) {
     if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }
@@ -395,7 +395,7 @@ static SHT3x_Status SHT3x_ReadSingleShotMeasurement(SHT3x_Sensor *s, SHT3x_Data 
     }
 }
 
-SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_Data *d) {
+SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_MeasurementData *d) {
     if (!_sht3x_is_valid(s) || !d) {
         return SHT3X_ERROR_INVALID_ARGS;
     }

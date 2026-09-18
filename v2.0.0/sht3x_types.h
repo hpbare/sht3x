@@ -80,7 +80,7 @@ typedef struct {
 typedef struct {
     float temperature_c;  /**< Temperature in degrees Celsius     */
     float humidity_rh;    /**< Relative humidity in percent (%RH) */
-} SHT3x_Data;
+} SHT3x_MeasurementData;
 
 /**
  * @brief Decoded view of the 16-bit status register (Table 18).

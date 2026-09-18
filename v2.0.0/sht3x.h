@@ -133,7 +133,7 @@ SHT3x_Status SHT3x_StopPeriodicMeasurement(SHT3x_Sensor *s);
  * @retval  SHT3X_ERROR_I2C           if any I2C transaction fails.
  * @retval  SHT3X_ERROR_CRC           if the response fails CRC verification.
  */
-SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_Data *d);
+SHT3x_Status SHT3x_ReadMeasurement(SHT3x_Sensor *s, SHT3x_MeasurementData *d);
 
 /**
  * @brief   Enable or disable the on-chip heater.
