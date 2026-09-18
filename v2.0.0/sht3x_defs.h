@@ -48,12 +48,12 @@
  * @{
  * ========================================================================= */
 
-#define SHT3X_CMD_SINGLESHOT_CS_HIGH    0x2C06u /**< Single-shot, clock stretch, high repeatability   */
-#define SHT3X_CMD_SINGLESHOT_CS_MED     0x2C0Du /**< Single-shot, clock stretch, medium repeatability */
-#define SHT3X_CMD_SINGLESHOT_CS_LOW     0x2C10u /**< Single-shot, clock stretch, low repeatability    */
-#define SHT3X_CMD_SINGLESHOT_HIGH       0x2400u /**< Single-shot, no clock stretch, high repeatability   */
-#define SHT3X_CMD_SINGLESHOT_MED        0x240Bu /**< Single-shot, no clock stretch, medium repeatability */
-#define SHT3X_CMD_SINGLESHOT_LOW        0x2416u /**< Single-shot, no clock stretch, low repeatability    */
+// #define SHT3X_CMD_SINGLESHOT_CS_HIGH    0x2C06u /**< Single-shot, clock stretch, high repeatability   */
+// #define SHT3X_CMD_SINGLESHOT_CS_MED     0x2C0Du /**< Single-shot, clock stretch, medium repeatability */
+// #define SHT3X_CMD_SINGLESHOT_CS_LOW     0x2C10u /**< Single-shot, clock stretch, low repeatability    */
+// #define SHT3X_CMD_SINGLESHOT_HIGH       0x2400u /**< Single-shot, no clock stretch, high repeatability   */
+// #define SHT3X_CMD_SINGLESHOT_MED        0x240Bu /**< Single-shot, no clock stretch, medium repeatability */
+// #define SHT3X_CMD_SINGLESHOT_LOW        0x2416u /**< Single-shot, no clock stretch, low repeatability    */
 
 /** @} */ /* end group SHT3X_CMD_SS */
 
@@ -65,21 +65,21 @@
  * @{
  * ========================================================================= */
 
-#define SHT3X_CMD_PERIODIC_05_HIGH      0x2032u /**< 0.5 mps, high repeatability   */
-#define SHT3X_CMD_PERIODIC_05_MED       0x2024u /**< 0.5 mps, medium repeatability */
-#define SHT3X_CMD_PERIODIC_05_LOW       0x202Fu /**< 0.5 mps, low repeatability    */
-#define SHT3X_CMD_PERIODIC_1_HIGH       0x2130u /**< 1 mps, high repeatability     */
-#define SHT3X_CMD_PERIODIC_1_MED        0x2126u /**< 1 mps, medium repeatability   */
-#define SHT3X_CMD_PERIODIC_1_LOW        0x212Du /**< 1 mps, low repeatability      */
-#define SHT3X_CMD_PERIODIC_2_HIGH       0x2236u /**< 2 mps, high repeatability     */
-#define SHT3X_CMD_PERIODIC_2_MED        0x2220u /**< 2 mps, medium repeatability   */
-#define SHT3X_CMD_PERIODIC_2_LOW        0x222Bu /**< 2 mps, low repeatability      */
-#define SHT3X_CMD_PERIODIC_4_HIGH       0x2334u /**< 4 mps, high repeatability     */
-#define SHT3X_CMD_PERIODIC_4_MED        0x2322u /**< 4 mps, medium repeatability   */
-#define SHT3X_CMD_PERIODIC_4_LOW        0x2329u /**< 4 mps, low repeatability      */
-#define SHT3X_CMD_PERIODIC_10_HIGH      0x2737u /**< 10 mps, high repeatability    */
-#define SHT3X_CMD_PERIODIC_10_MED       0x2721u /**< 10 mps, medium repeatability  */
-#define SHT3X_CMD_PERIODIC_10_LOW       0x272Au /**< 10 mps, low repeatability     */
+// #define SHT3X_CMD_START_PERIODIC_05_HIGH      0x2032u /**< 0.5 mps, high repeatability   */
+// #define SHT3X_CMD_START_PERIODIC_05_MED       0x2024u /**< 0.5 mps, medium repeatability */
+// #define SHT3X_CMD_START_PERIODIC_05_LOW       0x202Fu /**< 0.5 mps, low repeatability    */
+// #define SHT3X_CMD_START_PERIODIC_1_HIGH       0x2130u /**< 1 mps, high repeatability     */
+// #define SHT3X_CMD_START_PERIODIC_1_MED        0x2126u /**< 1 mps, medium repeatability   */
+// #define SHT3X_CMD_START_PERIODIC_1_LOW        0x212Du /**< 1 mps, low repeatability      */
+// #define SHT3X_CMD_START_PERIODIC_2_HIGH       0x2236u /**< 2 mps, high repeatability     */
+// #define SHT3X_CMD_START_PERIODIC_2_MED        0x2220u /**< 2 mps, medium repeatability   */
+// #define SHT3X_CMD_START_PERIODIC_2_LOW        0x222Bu /**< 2 mps, low repeatability      */
+// #define SHT3X_CMD_START_PERIODIC_4_HIGH       0x2334u /**< 4 mps, high repeatability     */
+// #define SHT3X_CMD_START_PERIODIC_4_MED        0x2322u /**< 4 mps, medium repeatability   */
+// #define SHT3X_CMD_START_PERIODIC_4_LOW        0x2329u /**< 4 mps, low repeatability      */
+// #define SHT3X_CMD_START_PERIODIC_10_HIGH      0x2737u /**< 10 mps, high repeatability    */
+// #define SHT3X_CMD_START_PERIODIC_10_MED       0x2721u /**< 10 mps, medium repeatability  */
+// #define SHT3X_CMD_START_PERIODIC_10_LOW       0x272Au /**< 10 mps, low repeatability     */
 
 /** @} */ /* end group SHT3X_CMD_PERIOD */
 
@@ -89,14 +89,52 @@
  * @{
  * ========================================================================= */
 
-#define SHT3X_CMD_FETCH_DATA            0xE000u /**< Read measurement result from buffer (Table 11)     */
-#define SHT3X_CMD_PERIODIC_ART          0x2B32u /**< Periodic measurement w/ ART, 4 Hz, high repeatability (Table 12) */
-#define SHT3X_CMD_BREAK                 0x3093u /**< Stop periodic measurement, return to idle (Table 13) */
-#define SHT3X_CMD_SOFT_RESET            0x30A2u /**< Soft reset via I2C interface (Table 14)             */
-#define SHT3X_CMD_HEATER_ON             0x306Du /**< Enable on-chip heater (Table 16)                    */
-#define SHT3X_CMD_HEATER_OFF            0x3066u /**< Disable on-chip heater (Table 16)                   */
-#define SHT3X_CMD_READ_STATUS           0xF32Du /**< Read 16-bit status register (Table 17)              */
-#define SHT3X_CMD_CLEAR_STATUS          0x3041u /**< Clear all flags in status register (Table 19)       */
+// #define SHT3X_CMD_FETCH_DATA            0xE000u /**< Read measurement result from buffer (Table 11)     */
+// #define SHT3X_CMD_START_PERIODIC_ART          0x2B32u /**< Periodic measurement w/ ART, 4 Hz, high repeatability (Table 12) */
+// #define SHT3X_CMD_BREAK                 0x3093u /**< Stop periodic measurement, return to idle (Table 13) */
+// #define SHT3X_CMD_SOFT_RESET            0x30A2u /**< Soft reset via I2C interface (Table 14)             */
+// #define SHT3X_CMD_HEATER_ON             0x306Du /**< Enable on-chip heater (Table 16)                    */
+// #define SHT3X_CMD_HEATER_OFF            0x3066u /**< Disable on-chip heater (Table 16)                   */
+// #define SHT3X_CMD_READ_STATUS           0xF32Du /**< Read 16-bit status register (Table 17)              */
+// #define SHT3X_CMD_CLEAR_STATUS          0x3041u /**< Clear all flags in status register (Table 19)       */
+
+typedef enum {
+    SHT3X_CMD_START_PERIODIC_0_5_HIGH   = 0x2032u, /**< 0.5 mps, high repeatability   */
+    SHT3X_CMD_START_PERIODIC_0_5_MED    = 0x2024u, /**< 0.5 mps, medium repeatability */
+    SHT3X_CMD_START_PERIODIC_0_5_LOW    = 0x202Fu, /**< 0.5 mps, low repeatability    */
+    SHT3X_CMD_START_PERIODIC_1_HIGH     = 0x2130u, /**< 1 mps, high repeatability     */
+    SHT3X_CMD_START_PERIODIC_1_MED      = 0x2126u, /**< 1 mps, medium repeatability   */
+    SHT3X_CMD_START_PERIODIC_1_LOW      = 0x212Du, /**< 1 mps, low repeatability      */
+    SHT3X_CMD_START_PERIODIC_2_HIGH     = 0x2236u, /**< 2 mps, high repeatability     */
+    SHT3X_CMD_START_PERIODIC_2_MED      = 0x2220u, /**< 2 mps, medium repeatability   */
+    SHT3X_CMD_START_PERIODIC_2_LOW      = 0x222Bu, /**< 2 mps, low repeatability      */
+    SHT3X_CMD_START_PERIODIC_4_HIGH     = 0x2334u, /**< 4 mps, high repeatability     */
+    SHT3X_CMD_START_PERIODIC_4_MED      = 0x2322u, /**< 4 mps, medium repeatability   */
+    SHT3X_CMD_START_PERIODIC_4_LOW      = 0x2329u, /**< 4 mps, low repeatability      */
+    SHT3X_CMD_START_PERIODIC_10_HIGH    = 0x2737u, /**< 10 mps, high repeatability    */
+    SHT3X_CMD_START_PERIODIC_10_MED     = 0x2721u, /**< 10 mps, medium repeatability  */
+    SHT3X_CMD_START_PERIODIC_10_LOW     = 0x272Au, /**< 10 mps, low repeatability     */
+    SHT3X_CMD_START_PERIODIC_ART        = 0x2B32u, /**< Periodic measurement w/ ART, 4 Hz, high repeatability (Table 12) */
+
+    SHT3X_CMD_FETCH_DATA                = 0xE000u, /**< Read measurement result from buffer (Table 11)     */
+
+
+    SHT3X_CMD_READ_SINGLESHOT_CS_HIGH   = 0x2C06u, /**< Single-shot, clock stretch, high repeatability   */
+    SHT3X_CMD_READ_SINGLESHOT_CS_MED    = 0x2C0Du, /**< Single-shot, clock stretch, medium repeatability */
+    SHT3X_CMD_READ_SINGLESHOT_CS_LOW    = 0x2C10u, /**< Single-shot, clock stretch, low repeatability    */
+    SHT3X_CMD_READ_SINGLESHOT_HIGH      = 0x2400u, /**< Single-shot, no clock stretch, high repeatability   */
+    SHT3X_CMD_READ_SINGLESHOT_MED       = 0x240Bu, /**< Single-shot, no clock stretch, medium repeatability */
+    SHT3X_CMD_READ_SINGLESHOT_LOW       = 0x2416u, /**< Single-shot, no clock stretch, low repeatability    */
+
+
+    SHT3X_CMD_BREAK                     = 0x3093u, /**< Stop periodic measurement, return to idle (Table 13) */
+    SHT3X_CMD_SOFT_RESET                = 0x30A2u, /**< Soft reset via I2C interface (Table 14)             */
+    SHT3X_CMD_HEATER_ON                 = 0x306Du, /**< Enable on-chip heater (Table 16)                    */
+    SHT3X_CMD_HEATER_OFF                = 0x3066u, /**< Disable on-chip heater (Table 16)                   */
+    SHT3X_CMD_READ_STATUS               = 0xF32Du, /**< Read 16-bit status register (Table 17)              */
+    SHT3X_CMD_CLEAR_STATUS              = 0x3041u  /**< Clear all flags in status register (Table 19)       */
+} SHT3x_I2cCommand;
+
 
 #define SHT3X_GENERAL_CALL_ADDR         0x00u   /**< I2C general call address (Table 15) */
 #define SHT3X_GENERAL_CALL_RESET        0x06u   /**< Second byte to trigger general call reset */
